@@ -102,4 +102,9 @@ if st.button("🔍 Predict Disease"):
 # # -------------------------------
 #     prob_df = pd.DataFrame(predictions, columns=["Disease", "Probability"])
 #     st.bar_chart(prob_df.set_index("Disease"))
-
+st.markdown("""
+### 🩺 **Disclaimer**
+> This application uses AI-based predictions for informational purposes only.  
+> It is **not a substitute for professional medical advice, diagnosis, or treatment.**  
+> Always consult a qualified **healthcare professional** before making medical decisions.
+""")
