@@ -99,7 +99,7 @@ if st.button("🔍 Predict Disease"):
 
 # -------------------------------
 # 📊 Optional: Visual Probability Bar
-# -------------------------------
-    prob_df = pd.DataFrame(predictions, columns=["Disease", "Probability"])
-    st.bar_chart(prob_df.set_index("Disease"))
+# # -------------------------------
+#     prob_df = pd.DataFrame(predictions, columns=["Disease", "Probability"])
+#     st.bar_chart(prob_df.set_index("Disease"))
 
