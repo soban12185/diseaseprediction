@@ -71,40 +71,185 @@ def predict_disease(symptoms_list, top_n=3):
 # -------------------------------
 # 🌐 Streamlit UI
 # -------------------------------
-st.title("🩺 AI Medical Disease Prediction Chatbot")
-st.write("Enter your symptoms below to get possible diseases and suggestions.")
+# -------------------------------
+# 🎨 Custom CSS & Styling
+# -------------------------------
+st.markdown("""
+    <style>
+        /* Import Google Font */
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&display=swap');
+
+        /* Global Styles */
+        html, body, [class*="css"] {
+            font-family: 'Poppins', sans-serif;
+            background-color: #f0f8ff; /* Light Alice Blue */
+            color: #333;
+        }
+
+        /* App Background */
+        .stApp {
+            background: linear-gradient(135deg, #e0f7fa 0%, #ffffff 100%);
+        }
+
+        /* Title Style */
+        .title-container {
+            text-align: center;
+            background-color: #00796b; /* Teal */
+            padding: 20px;
+            border-radius: 10px;
+            color: white;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 30px;
+        }
+        .title-container h1 {
+            color: white;
+            margin: 0;
+            font-size: 2.5rem;
+        }
+        .title-container p {
+            font-size: 1.1rem;
+            margin-top: 10px;
+            opacity: 0.9;
+        }
+
+        /* Card Style for Inputs */
+        .input-card {
+            background-color: white;
+            padding: 25px;
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+            margin-bottom: 20px;
+        }
+
+        /* Button Styling */
+        div.stButton > button {
+            background-color: #00796b;
+            color: white;
+            border: none;
+            padding: 12px 28px;
+            border-radius: 8px;
+            font-size: 18px;
+            font-weight: 600;
+            width: 100%;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 121, 107, 0.3);
+        }
+        div.stButton > button:hover {
+            background-color: #004d40;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 121, 107, 0.4);
+            color: white;
+        }
+
+        /* Success Message Card */
+        .result-card {
+            background: linear-gradient(to right, #00b09b, #96c93d);
+            color: white;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            margin-top: 20px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+        }
+        .result-card h2 {
+            color: white;
+            margin: 0;
+        }
+
+        /* Advice Box */
+        .advice-box {
+            background-color: #fff3e0;
+            border-left: 6px solid #ff9800;
+            padding: 15px;
+            border-radius: 5px;
+            margin-top: 15px;
+            color: #e65100;
+            font-size: 1.05rem;
+        }
+
+        /* Disclaimer */
+        .disclaimer {
+            font-size: 0.85rem;
+            color: #777;
+            text-align: center;
+            margin-top: 50px;
+            border-top: 1px solid #ddd;
+            padding-top: 20px;
+        }
+    </style>
+""", unsafe_allow_html=True)
+
+# -------------------------------
+# 🌐 Streamlit UI
+# -------------------------------
+
+# Custom HTML Title
+st.markdown("""
+    <div class="title-container">
+        <h1>🩺 AI Health Guard</h1>
+        <p>Your Intelligent Disease Prediction Assistant</p>
+    </div>
+""", unsafe_allow_html=True)
+
+# Input Section wrapped in a container explicitly if needed, but here we just use the flow
+# To mimic a card, we can't easily wrap Streamlit widgets in custom HTML divs without components,
+# but we can style the surrounding elements.
+# Alternatively, just let the global CSS handle the 'white' look if possible, or use columns.
+
+st.write("### 📝 Describe Your Symptoms")
+st.markdown('<div class="input-card">', unsafe_allow_html=True)
 
 # Multiple symptom input (from list)
 symptom_options = list(X.columns)
-selected_symptoms = st.multiselect("Select your symptoms:", options=symptom_options)
+selected_symptoms = st.multiselect("Select your symptoms from the list below:", options=symptom_options)
+
+st.markdown('</div>', unsafe_allow_html=True)
 
 # Predict button
-if st.button("🔍 Predict Disease"):
+if st.button("🔍 Analyze Symptoms"):
     if selected_symptoms:
-        predictions = predict_disease(selected_symptoms, top_n=3)
+        with st.spinner('Processing your symptoms...'):
+            predictions = predict_disease(selected_symptoms, top_n=3)
+            
+            # Top Prediction Result
+            top_disease = predictions[0][0]
+            top_prob = predictions[0][1]
 
-        st.subheader("🧠 Predicted Probabilities:")
-        for disease, prob in predictions:
-            st.write(f"- **{disease}**: {prob:.2f}%")
+            st.markdown(f"""
+                <div class="result-card">
+                    <h2>Diagnosis: <b>{top_disease}</b></h2>
+                    <p>Confidence Level: {top_prob:.1f}%</p>
+                </div>
+            """, unsafe_allow_html=True)
 
-        top_disease = predictions[0][0]
-        st.success(f"💊 Most likely disease: **{top_disease}**")
+            # Advice
+            if top_disease in advice_dict:
+                st.markdown(f"""
+                    <div class="advice-box">
+                        <b>💡 Recommended Action:</b><br>
+                        {advice_dict[top_disease]}
+                    </div>
+                """, unsafe_allow_html=True)
+            else:
+                 st.markdown(f"""
+                    <div class="advice-box">
+                        <b>💡 Recommended Action:</b><br>
+                        Please consult a healthcare professional for specific advice.
+                    </div>
+                """, unsafe_allow_html=True)
 
-        if top_disease in advice_dict:
-            st.info(f"🩹 Suggested Advice: {advice_dict[top_disease]}")
-        else:
-            st.info("🩹 Suggested Advice: Please consult a healthcare professional for accurate treatment.")
+            # Detailed Breakdown Section
+            st.markdown("### 📊 Detailed Analysis")
+            prob_df = pd.DataFrame(predictions, columns=["Potential Disease", "Probability (%)"])
+            prob_df.set_index("Potential Disease", inplace=True)
+            st.table(prob_df)
+
     else:
-        st.warning("Please select at least one symptom.")
+        st.warning("⚠️ Please select at least one symptom to proceed.")
 
-# -------------------------------
-# 📊 Optional: Visual Probability Bar
-# # -------------------------------
-#     prob_df = pd.DataFrame(predictions, columns=["Disease", "Probability"])
-#     st.bar_chart(prob_df.set_index("Disease"))
+# Disclaimer
 st.markdown("""
-### 🩺 **Disclaimer**
-> This application uses AI-based predictions for informational purposes only.  
-> It is **not a substitute for professional medical advice, diagnosis, or treatment.**  
-> Always consult a qualified **healthcare professional** before making medical decisions.
-""")
+<div class="disclaimer">
+    <p><b>⚠️ Medical Disclaimer:</b> This tool uses AI for informational purposes only and is not a substitute for professional medical diagnosis. Always consult a doctor for serious concerns.</p>
+</div>
+""", unsafe_allow_html=True)
