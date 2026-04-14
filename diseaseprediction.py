@@ -1,9 +1,4 @@
-# --------------------------------------------
-# AI Medical Disease Prediction Chatbot 💊
-# --------------------------------------------
 
-# 📦 Install required libraries before running:
-# pip install streamlit scikit-learn pandas numpy
 
 import streamlit as st
 import pandas as pd
@@ -12,30 +7,23 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.model_selection import train_test_split
 
-# -------------------------------
-# 🧠 Load and Prepare Datasetgit remote add origin https
-# -------------------------------
-# Replace 'disease_dataset.csv' with your actual file
+
 df = pd.read_csv("Training.csv")
 
-# Last column is 'prognosis' (disease name)
+
 X = df.drop("prognosis", axis=1)
 y = df["prognosis"]
 
-# Encode target labels
 le = LabelEncoder()
 y_encoded = le.fit_transform(y)
 
-# Split the data
+
 X_train, X_test, y_train, y_test = train_test_split(X, y_encoded, test_size=0.2, random_state=42)
 
 # Train the model
 model = RandomForestClassifier(n_estimators=200, random_state=42)
 model.fit(X_train, y_train)
 
-# -------------------------------
-# 💬 Define Advice for Some Diseases
-# -------------------------------
 advice_dict = {
     "Allergy": "Avoid allergens and take antihistamines if needed. Stay hydrated.",
     "Fungal infection": "Use antifungal creams and keep affected areas clean and dry.",
@@ -47,32 +35,24 @@ advice_dict = {
     "COVID-19": "Isolate yourself, get tested, and follow medical guidelines.",
 }
 
-# -------------------------------
-# ⚙️ Prediction Function
-# -------------------------------
+
 def predict_disease(symptoms_list, top_n=3):
-    # Create a vector of 0s
+  
     input_data = [0] * len(X.columns)
 
-    # Mark symptoms present
     for symptom in symptoms_list:
         if symptom in X.columns:
             input_data[X.columns.get_loc(symptom)] = 1
 
-    # Get probabilities
     probabilities = model.predict_proba([input_data])[0]
 
-    # Sort and get top N diseases
+   
     top_indices = np.argsort(probabilities)[::-1][:top_n]
     top_diseases = [(le.inverse_transform([i])[0], probabilities[i] * 100) for i in top_indices]
 
     return top_diseases
 
-# -------------------------------
-# 🌐 Streamlit UI
-# -------------------------------
-# -------------------------------
-# 🎨 Custom CSS & Styling
+#
 # -------------------------------
 st.markdown("""
     <style>
@@ -179,11 +159,7 @@ st.markdown("""
     </style>
 """, unsafe_allow_html=True)
 
-# -------------------------------
-# 🌐 Streamlit UI
-# -------------------------------
 
-# Custom HTML Title
 st.markdown("""
     <div class="title-container">
         <h1>🩺 AI Health Guard</h1>
@@ -196,7 +172,7 @@ st.markdown("""
 # but we can style the surrounding elements.
 # Alternatively, just let the global CSS handle the 'white' look if possible, or use columns.
 
-st.write("### 📝 Describe Your Symptoms")
+st.write("### Describe Your Symptoms")
 st.markdown('<div class="input-card">', unsafe_allow_html=True)
 
 # Multiple symptom input (from list)
@@ -206,7 +182,7 @@ selected_symptoms = st.multiselect("Select your symptoms from the list below:", 
 st.markdown('</div>', unsafe_allow_html=True)
 
 # Predict button
-if st.button("🔍 Analyze Symptoms"):
+if st.button(" Analyze Symptoms"):
     if selected_symptoms:
         with st.spinner('Processing your symptoms...'):
             predictions = predict_disease(selected_symptoms, top_n=3)
@@ -226,30 +202,30 @@ if st.button("🔍 Analyze Symptoms"):
             if top_disease in advice_dict:
                 st.markdown(f"""
                     <div class="advice-box">
-                        <b>💡 Recommended Action:</b><br>
+                        <b> Recommended Action:</b><br>
                         {advice_dict[top_disease]}
                     </div>
                 """, unsafe_allow_html=True)
             else:
                  st.markdown(f"""
                     <div class="advice-box">
-                        <b>💡 Recommended Action:</b><br>
+                        <b> Recommended Action:</b><br>
                         Please consult a healthcare professional for specific advice.
                     </div>
                 """, unsafe_allow_html=True)
 
             # Detailed Breakdown Section
-            st.markdown("### 📊 Detailed Analysis")
+            st.markdown("###  Detailed Analysis")
             prob_df = pd.DataFrame(predictions, columns=["Potential Disease", "Probability (%)"])
             prob_df.set_index("Potential Disease", inplace=True)
             st.table(prob_df)
 
     else:
-        st.warning("⚠️ Please select at least one symptom to proceed.")
+        st.warning(" Please select at least one symptom to proceed.")
 
 # Disclaimer
 st.markdown("""
 <div class="disclaimer">
-    <p><b>⚠️ Medical Disclaimer:</b> This tool uses AI for informational purposes only and is not a substitute for professional medical diagnosis. Always consult a doctor for serious concerns.</p>
+    <p><b> Medical Disclaimer:</b> This tool uses AI for informational purposes only and is not a substitute for professional medical diagnosis. Always consult a doctor for serious concerns.</p>
 </div>
 """, unsafe_allow_html=True)
